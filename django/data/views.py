@@ -4,6 +4,7 @@ from .models import Data
 from .serializers import DataSerializer
 
 
+# 'Get - Post' requests
 class DataListPostView(generics.ListCreateAPIView):
     serializer_class = DataSerializer
     queryset = Data.objects.all()

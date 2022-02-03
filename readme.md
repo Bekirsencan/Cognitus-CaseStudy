@@ -1,10 +1,25 @@
 # Cognitus Case Study
 
-Tüm kod parçacıkları Docker Container içerisinde yürütülmek üzere yazıldı.
+### Servisler
+
+- web(Django)
+- db(PostgreSQL)
+- algorithm(flask)
+- algorithm_celery(celery)
+- redis
+
+### Volumes
+
+- pgdata: Veritabanı verilerini saklar.
+- models: model.pickle ve vectorize.pickle dosyalarını saklar.
 
 docker-compose.yml dosyası içerisinde Docker için gerekli olan tüm servisler ve özellikleri belirtilmiştir.
 
+Django uygulaması içerisinde data/urls.py ve request/urls.py dosyaları içerisinde endpoint'ler bulunabilir.
+
 Kodları Docker üzerinde yürütmek için aşağıdaki komutların sırası ile yürütülmesi gerekmektedir.
+
+Ardından Notes kısmı gözden geçirilmelidir.
 
 # Commands
 
@@ -33,12 +48,27 @@ models adlı volume path'ine yazdırmak için gereklidir.
  
 # Notes
 
-- Django uygulamasından Flask uygulamasına istek atarken Docker Network'e bağlı algorithm servisinin IP Adresi'ne
- istek atıldığından bu IP Adresi bilgisayarlar arası değişkenlik gösterebilir. IP Adresini öğrenmek için servisler
- çalıştırılırken algorithm servisi IP Adresi terminalden bulunabilir. Ya da aşağıdaki komut çalıştırılarak
- öğrenilebilir.
+- Django üzerinden Flask train ve predict endpointlerine istek atarken Docker Container'ları arasında iletişim
+ gerçekleştiğinden dolayı algorithm servisinin network içerisindeki IP Adresi django/request/views.py dosyası içerisinde 7.
+ ve 12. satırdaki kod parçacıklarındaki 172.25.0.5 olan IP adresi network içerisindeki IP Adresine göre
+ değiştirilmelidir. Network içerisindeki IP Adresi'ni bulmak için 2 yol vardır;
+
+1- docker compose up komutu çalıştırıldıktan sonra terminalde algorithm servisinin IP Adresi bulunabilir.
  
- docker network inspect network_ismi
+2- docker network ls
+
+ Aşağıdaki ekran görüntüsüne bakılırsa base directory Cognitus-CaseStudy olduğundan docket network üzerinde
+ ismi cognitus-casestudy_default şeklinde olacaktır.
+
+ ![img.png](img.png)
+ 
+ "docker network inspect network_ismi" ardından bu komut çalıştırılarak network içerisindeki bilgileri görebiliriz.
+ Aşağıdaki resimde örnek verilmiştir. Buradan algorithm servisi IP Adresi bulunabilir.
+ ![img_1.png](img_1.png)
+
+ 
+
+ 
 
 
 
