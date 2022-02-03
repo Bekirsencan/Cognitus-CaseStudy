@@ -1,0 +1,66 @@
+version: "3.8"
+services:
+  web:
+    build:
+      context: ./django
+      dockerfile: Dockerfile
+    volumes:
+      - ./django:/django
+    ports:
+      - "8000:8000"
+    image: web:django
+    container_name: web
+    command: python manage.py runserver 0.0.0.0:8000
+    depends_on:
+      - db
+
+  db:
+    image: postgres
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    container_name: db
+
+  algorithm:
+    build:
+      context: ./flask
+      dockerfile: Dockerfile
+    volumes:
+      - ./flask:/flask
+      - models:/var/lib/volume
+    environment:
+      - REDIS_URL=redis
+      - REDIS_PORT=6379
+    ports:
+      - "5000:5000"
+    image: algorithm:flask
+    container_name: algorithm
+    command: flask run --host=0.0.0.0
+    depends_on:
+      - redis
+      - db
+
+  algorithm_celery:
+    build:
+      context: ./flask
+    command: celery -A celery_app worker -l INFO
+    volumes:
+      - models:/var/lib/volume
+    container_name: algorithm_celery
+    image: algorithm_celery:celery
+    depends_on:
+      - algorithm
+      - redis
+
+  redis:
+    image: 'redis:6.0-alpine'
+    ports:
+      - '6379:6379'
+volumes:
+  pgdata:
+  models:
